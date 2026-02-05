@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fetchSummary } from "./api";
 import "./styles.css";
 
@@ -15,6 +15,29 @@ function formatRate(value) {
   return value.toFixed(4);
 }
 
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function buildSparkline(days, width = 640, height = 220, padding = 24) {
+  if (!days || days.length === 0) return "";
+  const rates = days.map((day) => day.rate);
+  const min = Math.min(...rates);
+  const max = Math.max(...rates);
+  const range = max - min || 1;
+  const step = (width - padding * 2) / (days.length - 1 || 1);
+  return days
+    .map((day, index) => {
+      const x = padding + index * step;
+      const y =
+        height -
+        padding -
+        ((day.rate - min) / range) * (height - padding * 2);
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
 export default function App() {
   const [startDate, setStartDate] = useState(DEFAULT_START);
   const [endDate, setEndDate] = useState(DEFAULT_END);
@@ -22,6 +45,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [liveRate, setLiveRate] = useState(null);
+  const [liveUpdatedAt, setLiveUpdatedAt] = useState("");
+  const [liveError, setLiveError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,6 +66,31 @@ export default function App() {
 
   const totals = data?.totals;
   const days = useMemo(() => data?.days || [], [data]);
+  const chartPoints = useMemo(() => buildSparkline(days), [days]);
+
+  useEffect(() => {
+    let timer = null;
+    const poll = async () => {
+      const today = todayISO();
+      try {
+        const payload = await fetchSummary({
+          startDate: today,
+          endDate: today,
+          breakdown: "none"
+        });
+        setLiveRate(payload?.totals?.end_rate ?? null);
+        setLiveUpdatedAt(new Date().toLocaleTimeString());
+        setLiveError("");
+      } catch (err) {
+        setLiveError("Live rate unavailable");
+      }
+    };
+    poll();
+    timer = window.setInterval(poll, 5000);
+    return () => {
+      if (timer) window.clearInterval(timer);
+    };
+  }, []);
 
   return (
     <div className="page">
@@ -52,9 +103,18 @@ export default function App() {
             and cached responses.
           </p>
         </div>
-        <div className="badge">
-          <span className="label">Source</span>
-          <span className="value">{data?.source || "—"}</span>
+        <div className="meta">
+          <div className="badge">
+            <span className="label">Source</span>
+            <span className="value">{data?.source || "—"}</span>
+          </div>
+          <div className="badge badge-light">
+            <span className="label">Live rate</span>
+            <span className="value">
+              {liveError ? liveError : formatRate(liveRate)}
+            </span>
+            <span className="timestamp">{liveUpdatedAt || "—"}</span>
+          </div>
         </div>
       </header>
 
@@ -117,19 +177,35 @@ export default function App() {
         )}
 
         {breakdown === "day" && days.length > 0 && (
-          <div className="table">
-            <div className="table-row table-head">
-              <span>Date</span>
-              <span>Rate</span>
-              <span>% Change</span>
-            </div>
-            {days.map((day) => (
-              <div className="table-row" key={day.date}>
-                <span>{day.date}</span>
-                <span>{formatRate(day.rate)}</span>
-                <span>{formatPct(day.pct_change)}</span>
+          <div className="chart-block">
+            <div className="chart-header">
+              <div>
+                <h2>Change over time</h2>
+                <p>Rates mapped across the selected date range.</p>
               </div>
-            ))}
+              <div className="chart-stats">
+                <span>Min: {formatRate(Math.min(...days.map((d) => d.rate)))}</span>
+                <span>Max: {formatRate(Math.max(...days.map((d) => d.rate)))}</span>
+              </div>
+            </div>
+            <svg className="chart" viewBox="0 0 640 220" aria-hidden="true">
+              <polyline points={chartPoints} />
+            </svg>
+
+            <div className="table">
+              <div className="table-row table-head">
+                <span>Date</span>
+                <span>Rate</span>
+                <span>% Change</span>
+              </div>
+              {days.map((day) => (
+                <div className="table-row" key={day.date}>
+                  <span>{day.date}</span>
+                  <span>{formatRate(day.rate)}</span>
+                  <span>{formatPct(day.pct_change)}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>
