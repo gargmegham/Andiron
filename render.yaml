@@ -1,6 +1,3 @@
-previews:
-  generation: automatic
-
 services:
   - type: web
     name: fx-api
@@ -11,7 +8,6 @@ services:
     dockerContext: .
     plan: free
     region: frankfurt
-    branch: main
     healthCheckPath: /health
     envVars:
       - key: REDIS_URL
