@@ -1,0 +1,28 @@
+previews:
+  generation: automatic
+
+services:
+  - type: web
+    name: fx-api
+    runtime: docker
+    repo: https://github.com/your-org/your-repo
+    rootDir: server
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: frankfurt
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: fx-redis
+          property: connectionString
+      - key: CACHE_TTL_SECONDS
+        value: "21600"
+
+  - type: keyvalue
+    name: fx-redis
+    plan: free
+    maxmemoryPolicy: noeviction
