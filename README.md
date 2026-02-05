@@ -1,4 +1,6 @@
-# FX Dashboard 🍍 **andiron-cursor ✅**
+# FX Dashboard 🍍
+
+**andiron-cursor ✅**
 
 > _"Coins alone do not tell the story; show me the pattern and the change."_
 
