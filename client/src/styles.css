@@ -308,6 +308,30 @@ button:not(:disabled):hover {
   font-size: 1rem;
 }
 
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #52617d;
+}
+
+.pager {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #d4dbe8;
+  background: #ffffff;
+  color: #1f2a44;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pager:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 720px) {
   .hero {
     flex-direction: column;

@@ -49,6 +49,8 @@ export default function App() {
   const [liveUpdatedAt, setLiveUpdatedAt] = useState("");
   const [liveError, setLiveError] = useState("");
   const [hoverIndex, setHoverIndex] = useState(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 7;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -57,6 +59,7 @@ export default function App() {
     try {
       const payload = await fetchSummary({ startDate, endDate, breakdown });
       setData(payload);
+      setPage(1);
     } catch (err) {
       setError(err.message || "Unable to load data.");
       setData(null);
@@ -90,6 +93,11 @@ export default function App() {
     });
     return { width, height, padding, points };
   }, [days]);
+  const totalPages = Math.max(1, Math.ceil(days.length / pageSize));
+  const pagedDays = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return days.slice(start, start + pageSize);
+  }, [days, page]);
 
   useEffect(() => {
     let timer = null;
@@ -262,13 +270,34 @@ export default function App() {
                 <span>Rate</span>
                 <span>% Change</span>
               </div>
-              {days.map((day) => (
+              {pagedDays.map((day) => (
                 <div className="table-row" key={day.date}>
                   <span>{day.date}</span>
                   <span>{formatRate(day.rate)}</span>
                   <span>{formatPct(day.pct_change)}</span>
                 </div>
               ))}
+            </div>
+            <div className="pagination">
+              <button
+                type="button"
+                className="pager"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={page === 1}
+              >
+                Prev
+              </button>
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                className="pager"
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={page === totalPages}
+              >
+                Next
+              </button>
             </div>
           </div>
         )}
