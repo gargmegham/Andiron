@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+import socket
+
 import httpx
 from fastapi import APIRouter, status
 
@@ -19,7 +21,12 @@ def health() -> dict[str, str]:
 
 
 @router.get("/health/network")
-def health_network() -> dict[str, str]:
+def health_network() -> dict[str, str | dict[str, str]]:
+    details: dict[str, str] = {}
+    try:
+        details["dns"] = socket.gethostbyname("api.frankfurter.dev")
+    except OSError as exc:
+        details["dns_error"] = str(exc)
     try:
         with httpx.Client(timeout=config.HTTP_TIMEOUT_SECONDS) as client:
             frankfurter.fetch_latest(
@@ -27,10 +34,11 @@ def health_network() -> dict[str, str]:
                 base_currency=config.BASE_CURRENCY,
                 quote_currency=config.QUOTE_CURRENCY,
             )
-        return {"status": "ok"}
+        return {"status": "ok", "details": details}
     except httpx.HTTPError as exc:
         logger.warning("Network health check failed: %s", exc)
         return {
             "status": "degraded",
             "error": "upstream_unreachable",
+            "details": {**details, "error": str(exc)},
         }
