@@ -48,6 +48,7 @@ export default function App() {
   const [liveRate, setLiveRate] = useState(null);
   const [liveUpdatedAt, setLiveUpdatedAt] = useState("");
   const [liveError, setLiveError] = useState("");
+  const [hoverIndex, setHoverIndex] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -67,6 +68,28 @@ export default function App() {
   const totals = data?.totals;
   const days = useMemo(() => data?.days || [], [data]);
   const chartPoints = useMemo(() => buildSparkline(days), [days]);
+  const chartData = useMemo(() => {
+    const width = 640;
+    const height = 220;
+    const padding = 24;
+    if (!days || days.length === 0) {
+      return { width, height, padding, points: [] };
+    }
+    const rates = days.map((day) => day.rate);
+    const min = Math.min(...rates);
+    const max = Math.max(...rates);
+    const range = max - min || 1;
+    const step = (width - padding * 2) / (days.length - 1 || 1);
+    const points = days.map((day, index) => {
+      const x = padding + index * step;
+      const y =
+        height -
+        padding -
+        ((day.rate - min) / range) * (height - padding * 2);
+      return { x, y, day };
+    });
+    return { width, height, padding, points };
+  }, [days]);
 
   useEffect(() => {
     let timer = null;
@@ -107,6 +130,12 @@ export default function App() {
           <div className="badge">
             <span className="label">Source</span>
             <span className="value">{data?.source || "—"}</span>
+          </div>
+          <div className="badge badge-light">
+            <span className="label">Cache</span>
+            <span className="value">
+              {data?.source === "cache" ? "HIT" : data?.source ? "MISS" : "—"}
+            </span>
           </div>
           <div className="badge badge-light">
             <span className="label">Live rate</span>
@@ -190,7 +219,42 @@ export default function App() {
             </div>
             <svg className="chart" viewBox="0 0 640 220" aria-hidden="true">
               <polyline points={chartPoints} />
+              {chartData.points.map((point, index) => (
+                <circle
+                  key={point.day.date}
+                  cx={point.x}
+                  cy={point.y}
+                  r={hoverIndex === index ? 5 : 3}
+                  className={hoverIndex === index ? "dot active" : "dot"}
+                />
+              ))}
             </svg>
+            <div className="chart-overlay">
+              {chartData.points.map((point, index) => (
+                <button
+                  key={point.day.date}
+                  type="button"
+                  className="chart-hit"
+                  style={{ left: `${(point.x / chartData.width) * 100}%` }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                  onFocus={() => setHoverIndex(index)}
+                  onBlur={() => setHoverIndex(null)}
+                  aria-label={`Rate on ${point.day.date}`}
+                />
+              ))}
+            </div>
+            {hoverIndex !== null && chartData.points[hoverIndex] && (
+              <div
+                className="chart-tooltip"
+                style={{
+                  left: `${(chartData.points[hoverIndex].x / chartData.width) * 100}%`
+                }}
+              >
+                <span>{chartData.points[hoverIndex].day.date}</span>
+                <strong>{formatRate(chartData.points[hoverIndex].day.rate)}</strong>
+              </div>
+            )}
 
             <div className="table">
               <div className="table-row table-head">

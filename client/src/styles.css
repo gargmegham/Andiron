@@ -259,6 +259,55 @@ button:not(:disabled):hover {
   stroke-linejoin: round;
 }
 
+.chart-block {
+  position: relative;
+}
+
+.dot {
+  fill: #93c5fd;
+}
+
+.dot.active {
+  fill: #2563eb;
+}
+
+.chart-overlay {
+  position: absolute;
+  inset: 64px 28px 0 28px;
+  pointer-events: none;
+}
+
+.chart-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  transform: translateX(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 76px;
+  transform: translateX(-50%);
+  background: #0b1225;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 12px 24px -16px rgba(15, 23, 42, 0.8);
+}
+
+.chart-tooltip strong {
+  font-size: 1rem;
+}
+
 @media (max-width: 720px) {
   .hero {
     flex-direction: column;
