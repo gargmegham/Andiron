@@ -9,6 +9,7 @@ from fastapi import APIRouter, status
 
 from app.clients import frankfurter
 from app.core import config
+from app.utils.cache import get_json, set_json
 
 logger = logging.getLogger(__name__)
 
@@ -42,3 +43,17 @@ def health_network() -> dict[str, str | dict[str, str]]:
             "error": "upstream_unreachable",
             "details": {**details, "error": str(exc)},
         }
+
+
+@router.get("/health/cache")
+def health_cache() -> dict[str, str]:
+    key = "health:cache"
+    try:
+        set_json(key, {"status": "ok"}, 30)
+        payload = get_json(key)
+        if payload is None:
+            return {"status": "degraded", "error": "cache_unavailable"}
+        return {"status": "ok"}
+    except Exception as exc:  # pragma: no cover - safety net
+        logger.warning("Cache health check failed: %s", exc)
+        return {"status": "degraded", "error": "cache_unreachable"}
