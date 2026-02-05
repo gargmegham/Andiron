@@ -24,3 +24,4 @@ class SummaryResponse(BaseModel):
     days: Optional[list[DayRate]] = None
     totals: Totals
     source: Literal["network", "local", "cache"]
+    cache_status: Literal["hit", "miss"]

@@ -85,7 +85,9 @@ def build_summary(
     cache_key = _cache_key(start_date, end_date, breakdown)
     cached = get_json(cache_key)
     if cached is not None:
-        return SummaryResponse.model_validate({**cached, "source": "cache"})
+        return SummaryResponse.model_validate(
+            {**cached, "source": "cache", "cache_status": "hit"}
+        )
 
     source: Literal["network", "local"] = "network"
     try:
@@ -139,6 +141,7 @@ def build_summary(
         days=days,
         totals=totals,
         source=source,
+        cache_status="miss",
     )
     set_json(cache_key, response.model_dump(mode="json", exclude_none=True), config.CACHE_TTL_SECONDS)
     return response
