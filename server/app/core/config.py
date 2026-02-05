@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = BASE_DIR / "data"
 SAMPLE_FX_PATH = DATA_DIR / "sample_fx.json"
 
-FRANKFURTER_BASE_URL = "https://api.frankfurter.dev"
+FRANKFURTER_BASE_URL = "https://api.frankfurter.dev/v1"
 HTTP_TIMEOUT_SECONDS = 10.0
 
 BASE_CURRENCY = "EUR"
