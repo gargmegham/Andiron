@@ -81,6 +81,31 @@ body {
   display: inline-block;
 }
 
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.badge-light {
+  background: #ffffff;
+  color: #0b1225;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 40px -35px rgba(15, 23, 42, 0.3);
+}
+
+.badge-light .label {
+  color: #52617d;
+}
+
+.timestamp {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #6b7a99;
+}
+
 .card {
   background: white;
   border-radius: 20px;
@@ -187,6 +212,53 @@ button:not(:disabled):hover {
   font-weight: 600;
 }
 
+.chart-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.chart-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+}
+
+.chart-header p {
+  margin: 0;
+  color: #52617d;
+}
+
+.chart-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #52617d;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.chart polyline {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 @media (max-width: 720px) {
   .hero {
     flex-direction: column;
@@ -195,5 +267,15 @@ button:not(:disabled):hover {
 
   .badge {
     text-align: left;
+  }
+
+  .meta {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
