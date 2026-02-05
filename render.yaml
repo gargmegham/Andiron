@@ -26,3 +26,6 @@ services:
     name: fx-redis
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
