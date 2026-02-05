@@ -2,7 +2,7 @@ services:
   - type: web
     name: fx-api
     runtime: docker
-    repo: https://github.com/your-org/your-repo
+    repo: https://github.com/gargmegham/Andiron
     rootDir: server
     dockerfilePath: ./Dockerfile
     dockerContext: .
