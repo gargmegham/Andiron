@@ -99,28 +99,24 @@ export default function App() {
     return days.slice(start, start + pageSize);
   }, [days, page]);
 
+  const refreshLiveRate = async () => {
+    const today = todayISO();
+    try {
+      const payload = await fetchSummary({
+        startDate: today,
+        endDate: today,
+        breakdown: "none"
+      });
+      setLiveRate(payload?.totals?.end_rate ?? null);
+      setLiveUpdatedAt(new Date().toLocaleTimeString());
+      setLiveError("");
+    } catch (err) {
+      setLiveError("Live rate unavailable");
+    }
+  };
+
   useEffect(() => {
-    let timer = null;
-    const poll = async () => {
-      const today = todayISO();
-      try {
-        const payload = await fetchSummary({
-          startDate: today,
-          endDate: today,
-          breakdown: "none"
-        });
-        setLiveRate(payload?.totals?.end_rate ?? null);
-        setLiveUpdatedAt(new Date().toLocaleTimeString());
-        setLiveError("");
-      } catch (err) {
-        setLiveError("Live rate unavailable");
-      }
-    };
-    poll();
-    timer = window.setInterval(poll, 5000);
-    return () => {
-      if (timer) window.clearInterval(timer);
-    };
+    refreshLiveRate();
   }, []);
 
   return (
@@ -146,7 +142,17 @@ export default function App() {
             </span>
           </div>
           <div className="badge badge-light">
-            <span className="label">Live rate</span>
+            <div className="badge-row">
+              <span className="label">Live rate</span>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={refreshLiveRate}
+                aria-label="Refresh live rate"
+              >
+                ↻
+              </button>
+            </div>
             <span className="value">
               {liveError ? liveError : formatRate(liveRate)}
             </span>

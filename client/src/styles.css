@@ -99,6 +99,37 @@ body {
   color: #52617d;
 }
 
+.badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.icon-button {
+  border: 1px solid #d4dbe8;
+  background: #ffffff;
+  color: #0b1225;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px -10px rgba(15, 23, 42, 0.5);
+}
+
+.icon-button:active {
+  transform: translateY(0);
+}
+
 .timestamp {
   display: block;
   margin-top: 6px;
